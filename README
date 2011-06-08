@@ -2,7 +2,7 @@ a little hack to get textdata from the images generated  by
 	http://www.industry.siemens.com/industrysolutions/global/de/blids/service/spion/Seiten/spion_de.aspx
 
 this is a highly specialized hack, it will work only with the images
-supplied by the liked websites. the generated google maps coordinates
+supplied by the linked website. the generated google maps coordinates
 are only valid for central europe. as soon as we cross the prime meridian
 or the equator everything gets fucked up.
 
