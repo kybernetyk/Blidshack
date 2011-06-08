@@ -48,7 +48,7 @@ var poland = Bounds{
 	px_w: 500,
 	px_h: 460,
 
-	filename: "aktkartepolengrau.jpg"
+	filename: "aktkartepolengrau.jpg",
 }
 
 var germany = Bounds{
