@@ -14,6 +14,9 @@ var (
 	imagefile = "aktkartepolengrau.jpg"
 )
 
+/* 
+	did you know that google maps coordinates are strange?
+*/
 
 type Location struct {
 	Lat struct {
@@ -29,7 +32,7 @@ type Location struct {
 }
 
 type Bounds struct {
-	lat_min, lat_max int
+	lat_min, lat_max int //decimal encoded floats
 	lon_min, lon_max int
 
 	px_w, px_h int
@@ -51,11 +54,11 @@ var poland = Bounds{
 }
 
 var germany = Bounds{
-	lat_min: 464500,
-	lat_max: 544500,
+	lat_min: 455000,
+	lat_max: 552000,
 
-	lon_min: 46230,
-	lon_max: 154030,
+	lon_min: 50756,
+	lon_max: 155346,
 
 	px_w: 480,
 	px_h: 580,
@@ -65,21 +68,9 @@ var germany = Bounds{
 var land = &poland
 
 func (bnds Bounds) GeoLocation(idx int) Location {
-
-	/*
-		lat_min := 136019
-		lat_max := 235876
-		ilat := ((lat_max-lat_min)/500)*x + lat_min
-
-		lon_min := 488029
-		lon_max := 548022
-		ilon := (((lon_min-lon_max)/460)*-y - lon_max) * -1
-	*/
 	x := idx % bnds.px_w
 	y := idx / bnds.px_h
 
-	//	ilat := ((bnds.lat_max-bnds.lat_min)/bnds.px_w)*x + bnds.lat_min
-	//	ilon := (((bnds.lon_min-bnds.lon_max)/bnds.px_h)*-y - bnds.lon_max) * -1
 	ilon := ((bnds.lon_max-bnds.lon_min)/bnds.px_w)*x + bnds.lon_min
 	ilat := (((bnds.lat_min-bnds.lat_max)/bnds.px_h)*-y - bnds.lat_max) * -1
 
@@ -88,37 +79,11 @@ func (bnds Bounds) GeoLocation(idx int) Location {
 	ret.Lat.hrs = (ilat / 100) % 100
 	ret.Lat.min = ilat % 100
 
-	/*	if ret.Lat.min > 60 {
-			rest := ret.Lat.min % 60
-			ret.Lat.hrs ++
-			ret.Lat.min = rest
-		}
-
-		if ret.Lat.hrs > 60 {
-			rest := ret.Lat.hrs % 60
-			ret.Lat.deg ++
-			ret.Lat.hrs = rest
-		}
-	*/
 	ret.Lon.deg = ilon / 10000
 	ret.Lon.hrs = (ilon / 100) % 100
 	ret.Lon.min = ilon % 100
 
-	/*if ret.Lon.min > 60 {
-		rest := ret.Lon.min % 60
-		ret.Lon.hrs ++
-		ret.Lon.min = rest
-	}
-
-	if ret.Lon.hrs > 60 {
-		rest := ret.Lon.hrs % 60
-		ret.Lon.deg ++
-		ret.Lon.hrs = rest
-	}
-	*/
-
 	return ret
-
 }
 
 
@@ -134,10 +99,10 @@ func rgba(m image.Image) *image.RGBA {
 	return r
 }
 
+//strip everything that is not red
+//this is probably more complicated than it needs to be - but it works
 func stripColors(img image.Image) *image.RGBA {
 	rgb := rgba(img)
-
-	fmt.Printf("conv: %#v\n", rgb.Pix[0])
 
 	pix := rgb.Pix[0]
 	var avg float64
@@ -172,15 +137,20 @@ func stripColors(img image.Image) *image.RGBA {
 	return rgb
 }
 
+//get "text" data from an image
 func extractData(img image.Image) {
 	rgb := rgba(img)
 
 	data := make([]Location, 0, 0)
 	for i := 0; i < len(rgb.Pix); i++ {
 		if rgb.Pix[i].R != 0 && rgb.Pix[i].G != 0 && rgb.Pix[i].B != 0 {
-			//			i := x + y * w
 
+			loc := land.GeoLocation(i)
 			data = append(data, land.GeoLocation(i))
+			fmt.Printf("data [%d]: http://maps.google.com/?ie=UTF8&ll=%.2d.%.2d%.2d,%.2d.%.2d%.2d8&z=6\n", len(data),
+				loc.Lat.deg, loc.Lat.hrs, loc.Lat.min,
+				loc.Lon.deg, loc.Lon.hrs, loc.Lon.min)
+
 		}
 	}
 
@@ -223,7 +193,7 @@ func extractData(img image.Image) {
 		loc.Lat.deg, loc.Lat.hrs, loc.Lat.min,
 		loc.Lon.deg, loc.Lon.hrs, loc.Lon.min)
 
-	idx = 227 + 121 * land.px_w
+	idx = 227 + 121*land.px_w
 	loc = land.GeoLocation(idx)
 	fmt.Printf("hamburg: http://maps.google.com/?ie=UTF8&ll=%.2d.%.2d%.2d,%.2d.%.2d%.2d8&z=6\n",
 		loc.Lat.deg, loc.Lat.hrs, loc.Lat.min,
@@ -246,8 +216,6 @@ func extractData(img image.Image) {
 	fmt.Printf("muenchen: http://maps.google.com/?ie=UTF8&ll=%.2d.%.2d%.2d,%.2d.%.2d%.2d8&z=6\n",
 		loc.Lat.deg, loc.Lat.hrs, loc.Lat.min,
 		loc.Lon.deg, loc.Lon.hrs, loc.Lon.min)
-
-
 
 	//	fmt.Printf("%#v\n", data)
 	//	fmt.Printf("%d\n", len(data))
