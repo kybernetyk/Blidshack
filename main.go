@@ -10,10 +10,6 @@ import (
 	"math"
 )
 
-var (
-	imagefile = "aktkartepolengrau.jpg"
-)
-
 /* 
 	did you know that google maps coordinates are strange?
 */
@@ -32,12 +28,14 @@ type Location struct {
 }
 
 type Bounds struct {
-	lat_min, lat_max int //decimal encoded floats
+	lat_min, lat_max int //decimal encoded floats, 49.3524 -> 493524
 	lon_min, lon_max int
 
 	px_w, px_h int
 
 	filename string
+	img      image.Image
+	data     []Location
 }
 
 var poland = Bounds{
@@ -50,7 +48,7 @@ var poland = Bounds{
 	px_w: 500,
 	px_h: 460,
 
-	filename: "poland.jpg",
+	filename: "aktkartepolengrau.jpg"
 }
 
 var germany = Bounds{
@@ -63,11 +61,10 @@ var germany = Bounds{
 	px_w: 480,
 	px_h: 580,
 
-	filename: "germany.jpg",
+	filename: "aktkartegergrau.jpg",
 }
-var land = &poland
 
-func (bnds Bounds) GeoLocation(idx int) Location {
+func (bnds *Bounds) GeoLocation(idx int) Location {
 	x := idx % bnds.px_w
 	y := idx / bnds.px_h
 
@@ -138,90 +135,100 @@ func stripColors(img image.Image) *image.RGBA {
 }
 
 //get "text" data from an image
-func extractData(img image.Image) {
-	rgb := rgba(img)
+func (land *Bounds) ExtractData() {
+	rgb := rgba(land.img)
 
-	data := make([]Location, 0, 0)
+	land.data = make([]Location, 0, 0)
 	for i := 0; i < len(rgb.Pix); i++ {
 		if rgb.Pix[i].R != 0 && rgb.Pix[i].G != 0 && rgb.Pix[i].B != 0 {
 
 			loc := land.GeoLocation(i)
-			data = append(data, land.GeoLocation(i))
-			fmt.Printf("data [%d]: http://maps.google.com/?ie=UTF8&ll=%.2d.%.2d%.2d,%.2d.%.2d%.2d8&z=6\n", len(data),
+			land.data = append(land.data, land.GeoLocation(i))
+			fmt.Printf("data [%d]: http://maps.google.com/?ie=UTF8&ll=%.2d.%.2d%.2d,%.2d.%.2d%.2d8&z=6\n", len(land.data),
 				loc.Lat.deg, loc.Lat.hrs, loc.Lat.min,
 				loc.Lon.deg, loc.Lon.hrs, loc.Lon.min)
 
 		}
 	}
 
-	//	fmt.Printf("%#v", locForXY(350,210))
+	//some tests
+	/*
+		land = &poland
+		idx := 396 + 371*land.px_w
+		loc := land.GeoLocation(idx)
+		fmt.Printf("rzeszow: http://maps.google.com/?ie=UTF8&ll=%.2d.%.2d%.2d,%.2d.%.2d%.2d8&z=6\n",
+			loc.Lat.deg, loc.Lat.hrs, loc.Lat.min,
+			loc.Lon.deg, loc.Lon.hrs, loc.Lon.min)
 
-	//http://maps.google.com/?ie=UTF8&ll=37.0625,-95.677068&spn=33.710275,65.654297&z=4
-	//	loc := locForXY(350,210);
-	//loc := data[0]
+		idx = 245 + 50*land.px_w
+		loc = land.GeoLocation(idx)
+		fmt.Printf("gdansk: http://maps.google.com/?ie=UTF8&ll=%.2d.%.2d%.2d,%.2d.%.2d%.2d8&z=6\n",
+			loc.Lat.deg, loc.Lat.hrs, loc.Lat.min,
+			loc.Lon.deg, loc.Lon.hrs, loc.Lon.min)
 
-	land := &poland
-	idx := 396 + 371*land.px_w
-	loc := land.GeoLocation(idx)
-	fmt.Printf("rzeszow: http://maps.google.com/?ie=UTF8&ll=%.2d.%.2d%.2d,%.2d.%.2d%.2d8&z=6\n",
-		loc.Lat.deg, loc.Lat.hrs, loc.Lat.min,
-		loc.Lon.deg, loc.Lon.hrs, loc.Lon.min)
+		idx = 350 + 211*land.px_w
+		loc = land.GeoLocation(idx)
+		fmt.Printf("warszawa: http://maps.google.com/?ie=UTF8&ll=%.2d.%.2d%.2d,%.2d.%.2d%.2d8&z=6\n",
+			loc.Lat.deg, loc.Lat.hrs, loc.Lat.min,
+			loc.Lon.deg, loc.Lon.hrs, loc.Lon.min)
 
-	idx = 245 + 50*land.px_w
-	loc = land.GeoLocation(idx)
-	fmt.Printf("gdansk: http://maps.google.com/?ie=UTF8&ll=%.2d.%.2d%.2d,%.2d.%.2d%.2d8&z=6\n",
-		loc.Lat.deg, loc.Lat.hrs, loc.Lat.min,
-		loc.Lon.deg, loc.Lon.hrs, loc.Lon.min)
+		idx = 100 + 233*land.px_w
+		loc = land.GeoLocation(idx)
+		fmt.Printf("zelona gora: http://maps.google.com/?ie=UTF8&ll=%.2d.%.2d%.2d,%.2d.%.2d%.2d8&z=6\n",
+			loc.Lat.deg, loc.Lat.hrs, loc.Lat.min,
+			loc.Lon.deg, loc.Lon.hrs, loc.Lon.min)
 
-	idx = 350 + 211*land.px_w
-	loc = land.GeoLocation(idx)
-	fmt.Printf("warszawa: http://maps.google.com/?ie=UTF8&ll=%.2d.%.2d%.2d,%.2d.%.2d%.2d8&z=6\n",
-		loc.Lat.deg, loc.Lat.hrs, loc.Lat.min,
-		loc.Lon.deg, loc.Lon.hrs, loc.Lon.min)
+		land = &germany
 
-	idx = 100 + 233*land.px_w
-	loc = land.GeoLocation(idx)
-	fmt.Printf("zelona gora: http://maps.google.com/?ie=UTF8&ll=%.2d.%.2d%.2d,%.2d.%.2d%.2d8&z=6\n",
-		loc.Lat.deg, loc.Lat.hrs, loc.Lat.min,
-		loc.Lon.deg, loc.Lon.hrs, loc.Lon.min)
+		idx = 235 + 59*land.px_w
+		loc = land.GeoLocation(idx)
+		fmt.Printf("kiel: http://maps.google.com/?ie=UTF8&ll=%.2d.%.2d%.2d,%.2d.%.2d%.2d8&z=6\n",
+			loc.Lat.deg, loc.Lat.hrs, loc.Lat.min,
+			loc.Lon.deg, loc.Lon.hrs, loc.Lon.min)
 
-	land = &germany
+		idx = 227 + 121*land.px_w
+		loc = land.GeoLocation(idx)
+		fmt.Printf("hamburg: http://maps.google.com/?ie=UTF8&ll=%.2d.%.2d%.2d,%.2d.%.2d%.2d8&z=6\n",
+			loc.Lat.deg, loc.Lat.hrs, loc.Lat.min,
+			loc.Lon.deg, loc.Lon.hrs, loc.Lon.min)
 
-	idx = 235 + 59*land.px_w
-	loc = land.GeoLocation(idx)
-	fmt.Printf("kiel: http://maps.google.com/?ie=UTF8&ll=%.2d.%.2d%.2d,%.2d.%.2d%.2d8&z=6\n",
-		loc.Lat.deg, loc.Lat.hrs, loc.Lat.min,
-		loc.Lon.deg, loc.Lon.hrs, loc.Lon.min)
+		idx = 384 + 198*land.px_w
+		loc = land.GeoLocation(idx)
+		fmt.Printf("berlin: http://maps.google.com/?ie=UTF8&ll=%.2d.%.2d%.2d,%.2d.%.2d%.2d8&z=6\n",
+			loc.Lat.deg, loc.Lat.hrs, loc.Lat.min,
+			loc.Lon.deg, loc.Lon.hrs, loc.Lon.min)
 
-	idx = 227 + 121*land.px_w
-	loc = land.GeoLocation(idx)
-	fmt.Printf("hamburg: http://maps.google.com/?ie=UTF8&ll=%.2d.%.2d%.2d,%.2d.%.2d%.2d8&z=6\n",
-		loc.Lat.deg, loc.Lat.hrs, loc.Lat.min,
-		loc.Lon.deg, loc.Lon.hrs, loc.Lon.min)
+		idx = 81 + 294*land.px_w
+		loc = land.GeoLocation(idx)
+		fmt.Printf("ddorf: http://maps.google.com/?ie=UTF8&ll=%.2d.%.2d%.2d,%.2d.%.2d%.2d8&z=6\n",
+			loc.Lat.deg, loc.Lat.hrs, loc.Lat.min,
+			loc.Lon.deg, loc.Lon.hrs, loc.Lon.min)
 
-	idx = 384 + 198*land.px_w
-	loc = land.GeoLocation(idx)
-	fmt.Printf("berlin: http://maps.google.com/?ie=UTF8&ll=%.2d.%.2d%.2d,%.2d.%.2d%.2d8&z=6\n",
-		loc.Lat.deg, loc.Lat.hrs, loc.Lat.min,
-		loc.Lon.deg, loc.Lon.hrs, loc.Lon.min)
-
-	idx = 81 + 294*land.px_w
-	loc = land.GeoLocation(idx)
-	fmt.Printf("ddorf: http://maps.google.com/?ie=UTF8&ll=%.2d.%.2d%.2d,%.2d.%.2d%.2d8&z=6\n",
-		loc.Lat.deg, loc.Lat.hrs, loc.Lat.min,
-		loc.Lon.deg, loc.Lon.hrs, loc.Lon.min)
-
-	idx = 300 + 510*land.px_w
-	loc = land.GeoLocation(idx)
-	fmt.Printf("muenchen: http://maps.google.com/?ie=UTF8&ll=%.2d.%.2d%.2d,%.2d.%.2d%.2d8&z=6\n",
-		loc.Lat.deg, loc.Lat.hrs, loc.Lat.min,
-		loc.Lon.deg, loc.Lon.hrs, loc.Lon.min)
-
-	//	fmt.Printf("%#v\n", data)
-	//	fmt.Printf("%d\n", len(data))
+		idx = 300 + 510*land.px_w
+		loc = land.GeoLocation(idx)
+		fmt.Printf("muenchen: http://maps.google.com/?ie=UTF8&ll=%.2d.%.2d%.2d,%.2d.%.2d%.2d8&z=6\n",
+			loc.Lat.deg, loc.Lat.hrs, loc.Lat.min,
+			loc.Lon.deg, loc.Lon.hrs, loc.Lon.min)
+	*/
 }
 
-func main() {
+func (land *Bounds) SaveData() {
+	f, err := os.Create(land.filename + "_out.txt")
+	if err != nil {
+		panic(err.String())
+	}
+	defer f.Close()
+	
+	for _, loc := range land.data {
+		s := 	fmt.Sprintf("http://maps.google.com/?ie=UTF8&ll=%.2d.%.2d%.2d,%.2d.%.2d%.2d8&z=6\n", 
+				loc.Lat.deg, loc.Lat.hrs, loc.Lat.min,
+				loc.Lon.deg, loc.Lon.hrs, loc.Lon.min)
+		f.Write([]byte(s))
+	}
+
+}
+
+func (land Bounds) DoJob(backchan chan bool) {
 	file, err := os.Open(land.filename)
 	if err != nil {
 		panic(err.String())
@@ -233,21 +240,42 @@ func main() {
 		panic(err.String())
 	}
 
-	fmt.Printf("fmt: %#v\n", img.ColorModel())
-	fmt.Printf("loaded: %#v\n", img.At(0, 0))
-
 	rgb := stripColors(img)
-	extractData(rgb)
+	land.img = rgb
+	land.ExtractData()
+	land.SaveData()
 
-	f, err := os.Create("lol.png")
+	f, err := os.Create(land.filename + "_stripped.png")
 	if err != nil {
 		panic(err.String())
 	}
 	defer f.Close()
 
-	err = png.Encode(f, rgb)
+	err = png.Encode(f, land.img)
 	if err != nil {
 		panic(err.String())
 	}
-	fmt.Printf("success!\n")
+
+	backchan <- true
+}
+
+func main() {
+
+	jobchan := make(chan bool)
+	jobcount := 2
+
+	go germany.DoJob(jobchan)
+	go poland.DoJob(jobchan)
+
+	for {
+		select {
+		case <-jobchan:
+			jobcount--
+		}
+
+		if jobcount == 0 {
+			break
+		}
+	}
+
 }
