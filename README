@@ -1,6 +1,9 @@
 a little hack to get textdata from the images generated  by
 	http://www.industry.siemens.com/industrysolutions/global/de/blids/service/spion/Seiten/spion_de.aspx
 
+it will take a "lightning locations" jpg image from blids.de and map
+thee current lightning locations to google maps coordinates.
+
 this is a highly specialized hack, it will work only with the images
 supplied by the linked website. the generated google maps coordinates
 are only valid for central europe. as soon as we cross the prime meridian
