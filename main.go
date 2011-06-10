@@ -152,8 +152,8 @@ func (land *Bounds) ExtractData() {
 	}
 
 	//some tests
-	/*
-		land = &poland
+
+	/*	land = &poland
 		idx := 396 + 371*land.px_w
 		loc := land.GeoLocation(idx)
 		fmt.Printf("rzeszow: http://maps.google.com/?ie=UTF8&ll=%.2d.%.2d%.2d,%.2d.%.2d%.2d8&z=6\n",
@@ -178,7 +178,7 @@ func (land *Bounds) ExtractData() {
 			loc.Lat.deg, loc.Lat.hrs, loc.Lat.min,
 			loc.Lon.deg, loc.Lon.hrs, loc.Lon.min)
 
-		land = &germany
+		/*land = &germany
 
 		idx = 235 + 59*land.px_w
 		loc = land.GeoLocation(idx)
@@ -209,7 +209,14 @@ func (land *Bounds) ExtractData() {
 		fmt.Printf("muenchen: http://maps.google.com/?ie=UTF8&ll=%.2d.%.2d%.2d,%.2d.%.2d%.2d8&z=6\n",
 			loc.Lat.deg, loc.Lat.hrs, loc.Lat.min,
 			loc.Lon.deg, loc.Lon.hrs, loc.Lon.min)
-	*/
+		*/
+	/*	idx := 180 + 380*land.px_w
+		loc := land.GeoLocation(idx)
+		fmt.Printf("ffm: http://maps.google.com/?ie=UTF8&ll=%.2d.%.2d%.2d,%.2d.%.2d%.2d&z=6\n",
+			loc.Lat.deg, loc.Lat.hrs, loc.Lat.min,
+			loc.Lon.deg, loc.Lon.hrs, loc.Lon.min)
+	
+			land.data = append(land.data, loc)*/
 }
 
 func (land *Bounds) SaveData() {
@@ -220,7 +227,7 @@ func (land *Bounds) SaveData() {
 	defer f.Close()
 
 	for _, loc := range land.data {
-		s := fmt.Sprintf("%.2d%.2d%.2d,%.2d%.2d%.2d;",
+		s := fmt.Sprintf("%.2d.%.2d%.2d,%.2d.%.2d%.2d;",
 			loc.Lat.deg, loc.Lat.hrs, loc.Lat.min,
 			loc.Lon.deg, loc.Lon.hrs, loc.Lon.min)
 		f.Write([]byte(s))
