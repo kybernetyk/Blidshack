@@ -142,12 +142,12 @@ func (land *Bounds) ExtractData() {
 	for i := 0; i < len(rgb.Pix); i++ {
 		if rgb.Pix[i].R != 0 && rgb.Pix[i].G != 0 && rgb.Pix[i].B != 0 {
 
-			loc := land.GeoLocation(i)
+			//loc := land.GeoLocation(i)
 			land.data = append(land.data, land.GeoLocation(i))
-			fmt.Printf("data [%d]: http://maps.google.com/?ie=UTF8&ll=%.2d.%.2d%.2d,%.2d.%.2d%.2d8&z=6\n", len(land.data),
-				loc.Lat.deg, loc.Lat.hrs, loc.Lat.min,
-				loc.Lon.deg, loc.Lon.hrs, loc.Lon.min)
-
+			/*			fmt.Printf("data [%d]: http://maps.google.com/?ie=UTF8&ll=%.2d.%.2d%.2d,%.2d.%.2d%.2d8&z=6\n", len(land.data),
+						loc.Lat.deg, loc.Lat.hrs, loc.Lat.min,
+						loc.Lon.deg, loc.Lon.hrs, loc.Lon.min)
+			*/
 		}
 	}
 
@@ -218,11 +218,11 @@ func (land *Bounds) SaveData() {
 		panic(err.String())
 	}
 	defer f.Close()
-	
+
 	for _, loc := range land.data {
-		s := 	fmt.Sprintf("http://maps.google.com/?ie=UTF8&ll=%.2d.%.2d%.2d,%.2d.%.2d%.2d8&z=6\n", 
-				loc.Lat.deg, loc.Lat.hrs, loc.Lat.min,
-				loc.Lon.deg, loc.Lon.hrs, loc.Lon.min)
+		s := fmt.Sprintf("%.2d%.2d%.2d,%.2d%.2d%.2d;",
+			loc.Lat.deg, loc.Lat.hrs, loc.Lat.min,
+			loc.Lon.deg, loc.Lon.hrs, loc.Lon.min)
 		f.Write([]byte(s))
 	}
 
