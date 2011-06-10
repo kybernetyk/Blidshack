@@ -263,6 +263,8 @@ func (land Bounds) DoJob(backchan chan bool) {
 		panic(err.String())
 	}
 
+	fmt.Printf("got %d entries\n", len(land.data));
+
 	backchan <- true
 }
 
