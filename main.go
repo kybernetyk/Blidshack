@@ -122,7 +122,7 @@ func stripColors(img image.Image) *image.RGBA {
 
 		//now keep only the red data (which is the current one)
 		if (pix.R > pix.G && pix.R > pix.B) &&
-			(pix.R-pix.G) > 140 && (pix.R-pix.B) > 140 {
+			(pix.R-pix.G) > 125 && (pix.R-pix.B) > 125 {
 			//keep pixel
 		} else {
 			rgb.Pix[i].R = 0
