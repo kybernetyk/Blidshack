@@ -1,3 +1,3 @@
 #!/bin/bash
 
-gomake && ./getblids.sh && ./blids
+gomake && ./getblids.sh && ./blids && ./metadata.py
