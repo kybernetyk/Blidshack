@@ -2,5 +2,5 @@
 
 while true; do 
 	./run.sh
-	sleep 300
+	sleep 60 
 done
