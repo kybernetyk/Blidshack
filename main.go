@@ -4,7 +4,7 @@ import (
 	"exp/draw"
 	"image"
 	"image/jpeg"
-	"image/png"
+	//"image/png"
 	"os"
 	"fmt"
 	"math"
@@ -34,6 +34,7 @@ type Bounds struct {
 	px_w, px_h int
 
 	filename string
+	outname  string
 	img      image.Image
 	data     []Location
 }
@@ -48,7 +49,8 @@ var poland = Bounds{
 	px_w: 500,
 	px_h: 460,
 
-	filename: "aktkartepolengrau.jpg",
+	filename: "pl.jpg",
+	outname:  "pl.txt",
 }
 
 var germany = Bounds{
@@ -61,7 +63,8 @@ var germany = Bounds{
 	px_w: 480,
 	px_h: 580,
 
-	filename: "aktkartegergrau.jpg",
+	filename: "de.jpg",
+	outname:  "de.txt",
 }
 
 func (bnds *Bounds) GeoLocation(idx int) Location {
@@ -209,18 +212,18 @@ func (land *Bounds) ExtractData() {
 		fmt.Printf("muenchen: http://maps.google.com/?ie=UTF8&ll=%.2d.%.2d%.2d,%.2d.%.2d%.2d8&z=6\n",
 			loc.Lat.deg, loc.Lat.hrs, loc.Lat.min,
 			loc.Lon.deg, loc.Lon.hrs, loc.Lon.min)
-		*/
+	*/
 	/*	idx := 180 + 380*land.px_w
 		loc := land.GeoLocation(idx)
 		fmt.Printf("ffm: http://maps.google.com/?ie=UTF8&ll=%.2d.%.2d%.2d,%.2d.%.2d%.2d&z=6\n",
 			loc.Lat.deg, loc.Lat.hrs, loc.Lat.min,
 			loc.Lon.deg, loc.Lon.hrs, loc.Lon.min)
-	
+
 			land.data = append(land.data, loc)*/
 }
 
 func (land *Bounds) SaveData() {
-	f, err := os.Create(land.filename + "_out.txt")
+	f, err := os.Create(land.outname)
 	if err != nil {
 		panic(err.String())
 	}
@@ -252,7 +255,7 @@ func (land Bounds) DoJob(backchan chan bool) {
 	land.ExtractData()
 	land.SaveData()
 
-	f, err := os.Create(land.filename + "_stripped.png")
+	/*f, err := os.Create(land.filename + "_stripped.png")
 	if err != nil {
 		panic(err.String())
 	}
@@ -262,8 +265,8 @@ func (land Bounds) DoJob(backchan chan bool) {
 	if err != nil {
 		panic(err.String())
 	}
-
-	fmt.Printf("got %d entries\n", len(land.data));
+*/
+	fmt.Printf("%s: got %d entries\n",land.outname, len(land.data))
 
 	backchan <- true
 }

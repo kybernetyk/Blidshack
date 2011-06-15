@@ -1,4 +1,4 @@
 #!/bin/sh
 
-curl -O http://www.blids.de/spion/bilder/aktkartegergrau.jpg
-curl -O http://www.blids.de/spion/bilder/aktkartepolengrau.jpg
+curl -o de.jpg http://www.blids.de/spion/bilder/aktkartegergrau.jpg 
+curl -o pl.jpg http://www.blids.de/spion/bilder/aktkartepolengrau.jpg
